@@ -19,27 +19,32 @@ MainWindow::MainWindow(QWidget* parent)
 {
     ui->setupUi(this);
     this->setWindowTitle("PCL viewer");
+    _tabWidget = new QTabWidget(ui->centralWidget);
+    _tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
+    _tabWidget->setGeometry(QRect(10, 10, 1940, 1100));
 
     setFileMenuActions();
     setButtonsActions();
     // Set up the QVTK window
-#if VTK_MAJOR_VERSION > 8
-    auto renderer = vtkSmartPointer<vtkRenderer>::New();
-    auto renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
-    renderWindow->AddRenderer(renderer);
-    _viewer.reset(new pcl::visualization::PCLVisualizer(renderer, renderWindow, "viewer", false));
-    ui->qvtkWidget->setRenderWindow(_viewer->getRenderWindow());
-    _viewer->setupInteractor(ui->qvtkWidget->interactor(), ui->qvtkWidget->renderWindow());
-#else
-    viewer.reset(new pcl::visualization::PCLVisualizer("viewer", false));
-    ui->qvtkWidget->SetRenderWindow(viewer->getRenderWindow());
-    viewer->setupInteractor(ui->qvtkWidget->GetInteractor(), ui->qvtkWidget->GetRenderWindow());
-#endif
+    // #if VTK_MAJOR_VERSION > 8
+    //     auto renderer = vtkSmartPointer<vtkRenderer>::New();
+    //     auto renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
+    //     renderWindow->AddRenderer(renderer);
+    //     _viewer.reset(new pcl::visualization::PCLVisualizer(renderer, renderWindow, "viewer", false));
+    //     ui->qvtkWidget->setRenderWindow(_viewer->getRenderWindow());
+    //     _viewer->setupInteractor(ui->qvtkWidget->interactor(), ui->qvtkWidget->renderWindow());
+    // #else
+    //     viewer.reset(new pcl::visualization::PCLVisualizer("viewer", false));
+    //     ui->qvtkWidget->SetRenderWindow(viewer->getRenderWindow());
+    //     viewer->setupInteractor(ui->qvtkWidget->GetInteractor(), ui->qvtkWidget->GetRenderWindow());
+    // #endif
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete _tabWidget;
+    delete _vtkWidget;
 }
 
 void MainWindow::setFileMenuActions()
@@ -57,7 +62,9 @@ void MainWindow::setButtonsActions()
         &MainWindow::sorSetParams);
     connect(ui->pbRemoveOutliers, &QPushButton::released, this, &MainWindow::outlierRemoval);
 
-    connect(ui->pbNewTab, &QPushButton::released, this, &MainWindow::newTab);
+    connect(ui->pbNewTab, &QPushButton::released, this,
+        [this]() { emit sigNewTab(""); });
+    connect(this, &MainWindow::sigNewTab, this, &MainWindow::newTab);
 }
 
 void MainWindow::openFile()
@@ -71,6 +78,7 @@ void MainWindow::openFile()
     };
 
     loadCloud(cloudFile.toStdString());
+    _vtkWidget = newTab(_pc->id);
     visualize(_pc);
     refreshView();
     delete temp;
@@ -117,27 +125,43 @@ int MainWindow::loadCloud(const std::string& filename)
 }
 
 /**  Visualize the point cloud **/
-void MainWindow::visualize(std::shared_ptr<PointCloud> pc)
+// void MainWindow::visualize(std::shared_ptr<PointCloud> pc)
+// {
+//     _viewer->removeAllPointClouds();
+//     _viewer->addPointCloud(pc->cloud, pc->id);
+//     _viewer->spin();
+
+//     // Wait until the window closes
+//     while (!_viewer->wasStopped()) {
+//         // using namespace std::chrono_literals;
+//         // std::this_thread::sleep_for(100ms);
+//     }
+// }
+
+void MainWindow::visualize(const std::shared_ptr<PointCloud> pc)
 {
+    // pcl::visualization::PCLVisualizer::Ptr viewer;
+    // Temporary
+    // Set up the QVTK window
+    // setupViewer(std::move(viewer), std::move(vtkWidget));
+#if VTK_MAJOR_VERSION > 8
+    auto renderer = vtkSmartPointer<vtkRenderer>::New();
+    auto renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
+    renderWindow->AddRenderer(renderer);
+    _viewer.reset(new pcl::visualization::PCLVisualizer(renderer, renderWindow, "viewer", false));
+    _vtkWidget->setRenderWindow(_viewer->getRenderWindow());
+    _viewer->setupInteractor(_vtkWidget->interactor(), _vtkWidget->renderWindow());
+#else
+    viewer.reset(new pcl::visualization::PCLVisualizer("viewer", false));
+    vtkWidget->setRenderWindow(viewer->getRenderWindow());
+    _viewer->setupInteractor(vtkWidget->interactor(), vtkWidget->renderWindow());
+#endif
     _viewer->removeAllPointClouds();
     _viewer->addPointCloud(pc->cloud, pc->id);
     _viewer->spin();
 
     // Wait until the window closes
     while (!_viewer->wasStopped()) {
-        // using namespace std::chrono_literals;
-        // std::this_thread::sleep_for(100ms);
-    }
-}
-
-void MainWindow::visualize(pcl::visualization::PCLVisualizer::Ptr viewer, std::shared_ptr<PointCloud> pc)
-{
-    viewer->removeAllPointClouds();
-    viewer->addPointCloud(pc->cloud, pc->id);
-    viewer->spin();
-
-    // Wait until the window closes
-    while (!viewer->wasStopped()) {
         // using namespace std::chrono_literals;
         // std::this_thread::sleep_for(100ms);
     }
@@ -162,11 +186,11 @@ void MainWindow::setupViewer(pcl::visualization::PCLVisualizer::Ptr&& viewer,
 
 void MainWindow::refreshView()
 {
-#if VTK_MAJOR_VERSION > 8
-    ui->qvtkWidget->renderWindow()->Render();
-#else
-    ui->qvtkWidget->update();
-#endif
+    // #if VTK_MAJOR_VERSION > 8
+    //     ui->qvtkWidget->renderWindow()->Render();
+    // #else
+    //     ui->qvtkWidget->update();
+    // #endif
 }
 
 void MainWindow::sorSetParams()
@@ -187,6 +211,8 @@ void MainWindow::outlierRemoval()
     sor.setStddevMulThresh(_sor_standardDeviation);
 
     sor.filter(*_pc_out->cloud);
+
+    visualize(_pc_out);
     // std::cerr << "Cloud after filtering: " << std::endl;
     // std::cerr << *cloud_filtered << std::endl;
     // pcl::PCDWriter writer;
@@ -210,33 +236,15 @@ void MainWindow::outlierRemoval()
     //     });
 }
 
-void MainWindow::newTab()
+PCLQVTKWidget* MainWindow::newTab(const std::string& tab_name)
 {
     QWidget* newTab { new QWidget() };
-    newTab->setObjectName(QString::fromUtf8("temp_0"));
-    newTab->setAccessibleName(QString::fromUtf8("Fx"));
+    newTab->setObjectName(QString::fromUtf8("tab0"));
     PCLQVTKWidget* vtkWidget = new PCLQVTKWidget(newTab);
-    // std::unique_ptr<PCLQVTKWidget> vtkWidget = std::make_unique<PCLQVTKWidget>(newTab);
     vtkWidget->setObjectName(QString::fromUtf8("vtkWidget"));
-    vtkWidget->setGeometry(ui->tab->geometry());
-    ui->tabWidget->addTab(newTab, QString::fromUtf8("Fx_new"));
+    vtkWidget->setGeometry(12, 12, 1920, 1080);
+    _tabWidget->addTab(newTab, QString::fromStdString(tab_name));
+    _tabWidget->setCurrentWidget(newTab);
 
-    pcl::visualization::PCLVisualizer::Ptr viewer;
-    // Temporary
-    // Set up the QVTK window
-    // setupViewer(std::move(viewer), std::move(vtkWidget));
-#if VTK_MAJOR_VERSION > 8
-    auto renderer = vtkSmartPointer<vtkRenderer>::New();
-    auto renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
-    renderWindow->AddRenderer(renderer);
-    viewer.reset(new pcl::visualization::PCLVisualizer(renderer, renderWindow, "viewer", false));
-    vtkWidget->setRenderWindow(viewer->getRenderWindow());
-    viewer->setupInteractor(vtkWidget->interactor(), vtkWidget->renderWindow());
-#else
-    viewer.reset(new pcl::visualization::PCLVisualizer("viewer", false));
-    vtkWidget->setRenderWindow(viewer->getRenderWindow());
-    viewer->setupInteractor(vtkWidget->interactor(), vtkWidget->renderWindow());
-#endif
-    ui->tabWidget->setCurrentWidget(newTab);
-    visualize(viewer, _pc_out);
+    return vtkWidget;
 }

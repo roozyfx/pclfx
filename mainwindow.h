@@ -8,6 +8,7 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/visualization/qvtk_compatibility.h>
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
@@ -48,15 +49,16 @@ private:
     void sorSetParams();
     void outlierRemoval();
 
-    void newTab();
+    PCLQVTKWidget* newTab(const std::string& tab_name);
 
     Ui::MainWindow* ui;
     int loadCloud(const std::string&);
-    void visualize(std::shared_ptr<PointCloud> pc);
-    void visualize(pcl::visualization::PCLVisualizer::Ptr viewer,
-        std::shared_ptr<PointCloud> pc);
+    void visualize(const std::shared_ptr<PointCloud> pc);
     void setupViewer(pcl::visualization::PCLVisualizer::Ptr&& viewer,
         std::unique_ptr<PCLQVTKWidget>&& vtkWidget);
+
+    QTabWidget* _tabWidget;
+    PCLQVTKWidget* _vtkWidget;
 
     enum class FILEFORMATS { pcd,
         ply,
@@ -78,4 +80,7 @@ private:
     // Move to another file
     float _sor_standardDeviation;
     uint _sor_kMean;
+
+signals:
+    void sigNewTab(const std::string& tabname);
 };
