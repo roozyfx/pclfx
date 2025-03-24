@@ -6,38 +6,40 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2825</width>
-    <height>1551</height>
+    <width>2276</width>
+    <height>1300</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="centralWidget" native="true">
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>20</y>
-      <width>2501</width>
-      <height>1481</height>
+      <x>0</x>
+      <y>10</y>
+      <width>2000</width>
+      <height>1200</height>
      </rect>
     </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
+    <property name="currentIndex">
+     <number>0</number>
     </property>
-    <widget class="PCLQVTKWidget" name="qvtkWidget">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>30</y>
-       <width>2481</width>
-       <height>1441</height>
-      </rect>
-     </property>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>Tab 1</string>
+     </attribute>
+     <widget class="PCLQVTKWidget" name="qvtkWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>1920</width>
+        <height>1080</height>
+       </rect>
+      </property>
+     </widget>
     </widget>
    </widget>
   </widget>
@@ -46,7 +48,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>2825</width>
+     <width>2276</width>
      <height>25</height>
     </rect>
    </property>
@@ -77,37 +79,37 @@
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="pbRemoveOutliers">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>40</y>
        <width>151</width>
-       <height>101</height>
+       <height>61</height>
       </rect>
      </property>
      <property name="text">
-      <string>Push Me</string>
+      <string>Remove Outliers</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_2">
+    <widget class="QPushButton" name="pbNewTab">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>160</y>
+       <y>480</y>
        <width>151</width>
        <height>91</height>
       </rect>
      </property>
      <property name="text">
-      <string>Push this</string>
+      <string>New Tab</string>
      </property>
     </widget>
     <widget class="QPushButton" name="pushButton_3">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>270</y>
+       <y>620</y>
        <width>151</width>
        <height>91</height>
       </rect>
@@ -115,6 +117,117 @@
      <property name="text">
       <string>Push here</string>
      </property>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>18</x>
+       <y>111</y>
+       <width>164</width>
+       <height>42</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Standard&lt;br/&gt;Deviation&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="leStdDev">
+        <property name="text">
+         <string>1.0</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>160</y>
+       <width>161</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Mean K&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="leKMean">
+        <property name="text">
+         <string>50</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QWidget" name="layoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>200</y>
+       <width>169</width>
+       <height>58</height>
+      </rect>
+     </property>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>Show</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="pbShowInliers">
+        <property name="text">
+         <string>Inliers</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="pbShowOuliers">
+        <property name="text">
+         <string>Outliers</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </widget>
   </widget>
@@ -132,6 +245,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionRemove_Last">
+   <property name="text">
+    <string>Remove Last</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionRemove_All">
+   <property name="text">
+    <string>Remove All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R, Ctrl+A</string>
    </property>
   </action>
  </widget>

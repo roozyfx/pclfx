@@ -1,12 +1,13 @@
 #pragma once
 
+#include "./ui_mainwindow.h"
+#include <QMainWindow>
 #include <iostream>
+#include <memory>
 // Point Cloud Library
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
-
-#include <QMainWindow>
 
 typedef pcl::PointXYZ PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;
@@ -17,6 +18,12 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
+// template <typename PCT = PointCloudT>
+struct PointCloud {
+    PointCloudT::Ptr cloud { new PointCloudT };
+    std::string id { "cloud" };
+};
+
 class MainWindow : public QMainWindow {
     Q_OBJECT
 
@@ -25,22 +32,32 @@ public:
     ~MainWindow();
 
 protected:
-    void
-    refreshView();
+    void refreshView();
 
     pcl::visualization::PCLVisualizer::Ptr _viewer;
-    // PointCloudT::Ptr _cloud;
-    // pcl::PointCloud<pcl::PointXYZ>::Ptr _cloud { new pcl::PointCloud<pcl::PointXYZ> };
-    PointCloudT::Ptr _cloud { new PointCloudT };
+    // std::shared_ptr<PointCloud> _pc { std::make_shared<PointCloud>() };
+    std::shared_ptr<PointCloud> _pc { std::make_shared<PointCloud>() };
+    std::shared_ptr<PointCloud> _pc_out { std::make_shared<PointCloud>() };
+    // PointCloudT::Ptr _cloud_output { new PointCloudT };
 
 private:
     void setFileMenuActions();
+    void setButtonsActions();
     void openFile();
+
+    void sorSetParams();
+    void outlierRemoval();
+
+    void newTab();
 
     Ui::MainWindow* ui;
     int loadCloud(const std::string&);
-    void visualize();
-    // pcl::PointCloud<pcl::PointXYZ>::Ptr _cloud;
+    void visualize(std::shared_ptr<PointCloud> pc);
+    void visualize(pcl::visualization::PCLVisualizer::Ptr viewer,
+        std::shared_ptr<PointCloud> pc);
+    void setupViewer(pcl::visualization::PCLVisualizer::Ptr&& viewer,
+        std::unique_ptr<PCLQVTKWidget>&& vtkWidget);
+
     enum class FILEFORMATS { pcd,
         ply,
         obj,
@@ -57,4 +74,8 @@ private:
             return FILEFORMATS::ply;
         return FILEFORMATS::other;
     }
+
+    // Move to another file
+    float _sor_standardDeviation;
+    uint _sor_kMean;
 };
