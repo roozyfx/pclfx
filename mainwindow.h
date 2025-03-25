@@ -19,7 +19,6 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
-// template <typename PCT = PointCloudT>
 struct PointCloud {
     PointCloudT::Ptr cloud { new PointCloudT };
     std::string id { "cloud" };
@@ -33,13 +32,8 @@ public:
     ~MainWindow();
 
 protected:
-    void refreshView();
-
     pcl::visualization::PCLVisualizer::Ptr _viewer;
-    // std::shared_ptr<PointCloud> _pc { std::make_shared<PointCloud>() };
     std::shared_ptr<PointCloud> _pc { std::make_shared<PointCloud>() };
-    std::shared_ptr<PointCloud> _pc_out { std::make_shared<PointCloud>() };
-    // PointCloudT::Ptr _cloud_output { new PointCloudT };
 
 private:
     void setFileMenuActions();
@@ -49,13 +43,13 @@ private:
     void sorSetParams();
     void outlierRemoval();
 
-    PCLQVTKWidget* newTab(const std::string& tab_name);
-
     Ui::MainWindow* ui;
     int loadCloud(const std::string&);
+
+    void visualizeInNewTab(const std::shared_ptr<PointCloud> pc);
     void visualize(const std::shared_ptr<PointCloud> pc);
-    void setupViewer(pcl::visualization::PCLVisualizer::Ptr&& viewer,
-        std::unique_ptr<PCLQVTKWidget>&& vtkWidget);
+    void refreshView();
+    PCLQVTKWidget* newTab(const std::string& tab_name);
 
     QTabWidget* _tabWidget;
     PCLQVTKWidget* _vtkWidget;

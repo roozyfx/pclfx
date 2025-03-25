@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include <QFileDialog>
 #include <QLineEdit>
+#include <QShortcut>
 #include <chrono>
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/io/obj_io.h>
@@ -25,19 +26,6 @@ MainWindow::MainWindow(QWidget* parent)
 
     setFileMenuActions();
     setButtonsActions();
-    // Set up the QVTK window
-    // #if VTK_MAJOR_VERSION > 8
-    //     auto renderer = vtkSmartPointer<vtkRenderer>::New();
-    //     auto renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
-    //     renderWindow->AddRenderer(renderer);
-    //     _viewer.reset(new pcl::visualization::PCLVisualizer(renderer, renderWindow, "viewer", false));
-    //     ui->qvtkWidget->setRenderWindow(_viewer->getRenderWindow());
-    //     _viewer->setupInteractor(ui->qvtkWidget->interactor(), ui->qvtkWidget->renderWindow());
-    // #else
-    //     viewer.reset(new pcl::visualization::PCLVisualizer("viewer", false));
-    //     ui->qvtkWidget->SetRenderWindow(viewer->getRenderWindow());
-    //     viewer->setupInteractor(ui->qvtkWidget->GetInteractor(), ui->qvtkWidget->GetRenderWindow());
-    // #endif
 }
 
 MainWindow::~MainWindow()
@@ -69,19 +57,19 @@ void MainWindow::setButtonsActions()
 
 void MainWindow::openFile()
 {
-    QWidget* temp { new QWidget() };
+    std::unique_ptr<QWidget> temp { std::make_unique<QWidget>() };
     QString cloudFile {
-        QFileDialog::getOpenFileName(temp, tr("Open Image"), "/home/user/fx/pclfx/data",
+        QFileDialog::getOpenFileName(temp.get(), tr("Open Image"), "/home/user/fx/pclfx/data/tutorials",
             tr("Point Cloud File (*.pcd "
                "*.ply "
                "*.obj)"))
     };
 
+    if (cloudFile.isEmpty())
+        return;
+
     loadCloud(cloudFile.toStdString());
-    _vtkWidget = newTab(_pc->id);
-    visualize(_pc);
-    refreshView();
-    delete temp;
+    visualizeInNewTab(_pc);
 }
 
 int MainWindow::loadCloud(const std::string& filename)
@@ -124,26 +112,50 @@ int MainWindow::loadCloud(const std::string& filename)
     return 0;
 }
 
+void MainWindow::sorSetParams()
+{
+    _sor_standardDeviation = ui->leStdDev->text().toDouble();
+    _sor_kMean = ui->leKMean->text().toUInt();
+    cout << "Std Dev: " << _sor_standardDeviation << endl;
+    cout << "K Mean: " << _sor_kMean << endl;
+}
+void MainWindow::outlierRemoval()
+{
+    // Create the filtering object
+    pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
+
+    sor.setInputCloud(_pc->cloud);
+
+    sor.setMeanK(_sor_kMean);
+    sor.setStddevMulThresh(_sor_standardDeviation);
+
+    std::shared_ptr<PointCloud> pc_output_inliers { std::make_shared<PointCloud>() };
+    sor.filter(*pc_output_inliers->cloud);
+    pc_output_inliers->id = "inliers";
+    connect(ui->pbShowInliers, &QPushButton::released, this, [this, pc_output_inliers]() {
+        this->visualizeInNewTab(pc_output_inliers);
+    });
+
+    std::shared_ptr<PointCloud> pc_output_outliers { std::make_shared<PointCloud>() };
+    sor.setNegative(true);
+    sor.filter(*pc_output_outliers->cloud);
+    pc_output_outliers->id = "outliers";
+    connect(ui->pbShowOuliers, &QPushButton::released, this, [this, pc_output_outliers]() {
+        this->visualizeInNewTab(pc_output_outliers);
+    });
+}
+
+void MainWindow::visualizeInNewTab(const std::shared_ptr<PointCloud> pc)
+{
+    _vtkWidget = newTab(pc->id);
+    visualize(pc);
+    refreshView();
+}
+
 /**  Visualize the point cloud **/
-// void MainWindow::visualize(std::shared_ptr<PointCloud> pc)
-// {
-//     _viewer->removeAllPointClouds();
-//     _viewer->addPointCloud(pc->cloud, pc->id);
-//     _viewer->spin();
-
-//     // Wait until the window closes
-//     while (!_viewer->wasStopped()) {
-//         // using namespace std::chrono_literals;
-//         // std::this_thread::sleep_for(100ms);
-//     }
-// }
-
 void MainWindow::visualize(const std::shared_ptr<PointCloud> pc)
 {
-    // pcl::visualization::PCLVisualizer::Ptr viewer;
-    // Temporary
     // Set up the QVTK window
-    // setupViewer(std::move(viewer), std::move(vtkWidget));
 #if VTK_MAJOR_VERSION > 8
     auto renderer = vtkSmartPointer<vtkRenderer>::New();
     auto renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
@@ -167,84 +179,24 @@ void MainWindow::visualize(const std::shared_ptr<PointCloud> pc)
     }
 }
 
-void MainWindow::setupViewer(pcl::visualization::PCLVisualizer::Ptr&& viewer,
-    std::unique_ptr<PCLQVTKWidget>&& vtkWidget)
-{
-#if VTK_MAJOR_VERSION > 8
-    auto renderer = vtkSmartPointer<vtkRenderer>::New();
-    auto renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
-    renderWindow->AddRenderer(renderer);
-    viewer.reset(new pcl::visualization::PCLVisualizer(renderer, renderWindow, "viewer", false));
-    vtkWidget->setRenderWindow(viewer->getRenderWindow());
-    viewer->setupInteractor(vtkWidget->interactor(), vtkWidget->renderWindow());
-#else
-    viewer.reset(new pcl::visualization::PCLVisualizer("viewer", false));
-    vtkWidget->setRenderWindow(viewer->getRenderWindow());
-    viewer->setupInteractor(vtkWidget->interactor(), vtkWidget->renderWindow());
-#endif
-}
-
 void MainWindow::refreshView()
 {
-    // #if VTK_MAJOR_VERSION > 8
-    //     ui->qvtkWidget->renderWindow()->Render();
-    // #else
-    //     ui->qvtkWidget->update();
-    // #endif
+#if VTK_MAJOR_VERSION > 8
+    _vtkWidget->renderWindow()->Render();
+#else
+    _vtkWidget->update();
+#endif
 }
-
-void MainWindow::sorSetParams()
-{
-    _sor_standardDeviation = ui->leStdDev->text().toDouble();
-    _sor_kMean = ui->leKMean->text().toUInt();
-    cout << "Std Dev: " << _sor_standardDeviation << endl;
-    cout << "K Mean: " << _sor_kMean << endl;
-}
-void MainWindow::outlierRemoval()
-{
-    // Create the filtering object
-    pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
-
-    sor.setInputCloud(_pc->cloud);
-
-    sor.setMeanK(_sor_kMean);
-    sor.setStddevMulThresh(_sor_standardDeviation);
-
-    sor.filter(*_pc_out->cloud);
-
-    visualize(_pc_out);
-    // std::cerr << "Cloud after filtering: " << std::endl;
-    // std::cerr << *cloud_filtered << std::endl;
-    // pcl::PCDWriter writer;
-    // // Create the filtering object
-    // writer.write<PointT>("temp_inliers.pcd", *_pc_out->cloud, false);
-    // connect(ui->pbShowInliers, &QPushButton::released, this,
-    //     [this]() {
-    //         this->loadCloud("temp_inliers.pcd");
-    //         this->visualize(_pc_out);
-    //         this->refreshView();
-    //     });
-
-    // sor.setNegative(true);
-    // sor.filter(*_pc_out->cloud);
-    // writer.write<PointT>("temp_outliers.pcd", *_pc_out->cloud, false);
-    // connect(ui->pbShowOuliers, &QPushButton::released, this,
-    //     [this]() {
-    //         this->loadCloud("temp_outliers.pcd");
-    //         this->visualize(_pc_out);
-    //         this->refreshView();
-    //     });
-}
-
 PCLQVTKWidget* MainWindow::newTab(const std::string& tab_name)
 {
-    QWidget* newTab { new QWidget() };
-    newTab->setObjectName(QString::fromUtf8("tab0"));
-    PCLQVTKWidget* vtkWidget = new PCLQVTKWidget(newTab);
-    vtkWidget->setObjectName(QString::fromUtf8("vtkWidget"));
+    QWidget* new_tab { new QWidget() };
+    new_tab->setObjectName(QString::fromUtf8("tab0"));
+    PCLQVTKWidget* vtkWidget = new PCLQVTKWidget(new_tab);
+    vtkWidget->setObjectName(QString::fromUtf8("vtkWidge"));
     vtkWidget->setGeometry(12, 12, 1920, 1080);
-    _tabWidget->addTab(newTab, QString::fromStdString(tab_name));
-    _tabWidget->setCurrentWidget(newTab);
+    _tabWidget->addTab(new_tab, QString::fromStdString(tab_name));
+    // auto shortcut = QShortcut (QKeySequence ("Ctrl+w"), _tabWidget);
+    _tabWidget->setCurrentWidget(new_tab);
 
     return vtkWidget;
 }
