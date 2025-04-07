@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>2276</width>
-    <height>1300</height>
+    <width>3125</width>
+    <height>1598</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,8 +19,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>2276</width>
-     <height>25</height>
+     <width>3125</width>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -50,153 +50,221 @@
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <widget class="QPushButton" name="pbRemoveOutliers">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>40</y>
-       <width>151</width>
-       <height>61</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Remove Outliers</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pbNewTab">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>480</y>
-       <width>151</width>
-       <height>91</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>New Tab</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_3">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>620</y>
-       <width>151</width>
-       <height>91</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Push here</string>
-     </property>
-    </widget>
-    <widget class="QWidget" name="layoutWidget">
-     <property name="geometry">
-      <rect>
-       <x>18</x>
-       <y>111</y>
-       <width>164</width>
-       <height>42</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Standard&lt;br/&gt;Deviation&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="leStdDev">
-        <property name="text">
-         <string>1.0</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QPushButton" name="pbRansac">
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>160</y>
-       <width>161</width>
-       <height>30</height>
+       <y>300</y>
+       <width>131</width>
+       <height>41</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="text">
+      <string>Plane
+Segmentation</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>190</y>
+       <width>131</width>
+       <height>91</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="QLabel" name="label_2">
+       <widget class="QPushButton" name="pbVoxelGrid">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Mean K&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>Voxel Grid</string>
         </property>
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="leKMean">
-        <property name="text">
-         <string>50</string>
-        </property>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Leaf Size&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLineEdit" name="leLeafSizex">
+            <property name="text">
+             <string>0.01</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>18</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="leLeafSizey">
+            <property name="text">
+             <string>0.01</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>18</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="leLeafSizez">
+            <property name="text">
+             <string>0.01</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="layoutWidget">
+    <widget class="QWidget" name="">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>200</y>
-       <width>169</width>
-       <height>58</height>
+       <x>10</x>
+       <y>0</y>
+       <width>178</width>
+       <height>161</height>
       </rect>
      </property>
-     <layout class="QFormLayout" name="formLayout">
-      <item row="0" column="0">
-       <widget class="QLabel" name="label_3">
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="QPushButton" name="pbRemoveOutliers">
         <property name="text">
-         <string>Show</string>
+         <string>Remove Outliers</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QPushButton" name="pbShowInliers">
-        <property name="text">
-         <string>Inliers</string>
-        </property>
-       </widget>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Standard&lt;br/&gt;Deviation&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="leStdDev">
+          <property name="text">
+           <string>1.0</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="pbShowOuliers">
-        <property name="text">
-         <string>Outliers</string>
-        </property>
-       </widget>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Mean K&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="leKMean">
+          <property name="text">
+           <string>50</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Show&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QPushButton" name="pbShowInliers">
+            <property name="text">
+             <string>Inliers</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Orientation::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pbShowOuliers">
+            <property name="text">
+             <string>Outliers</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

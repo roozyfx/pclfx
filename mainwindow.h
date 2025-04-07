@@ -1,7 +1,8 @@
 #pragma once
 
-#include "./ui_mainwindow.h"
 #include <QMainWindow>
+#include "./ui_mainwindow.h"
+#include <cstdint>
 #include <iostream>
 #include <memory>
 // Point Cloud Library
@@ -10,8 +11,9 @@
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/visualization/qvtk_compatibility.h>
 
+typedef pcl::PointXYZ PointXYZ;
+// typedef pcl::PointXYZRGB PointT;
 typedef pcl::PointXYZ PointT;
-typedef pcl::PointCloud<PointT> PointCloudT;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -19,10 +21,13 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
-struct PointCloud {
-    PointCloudT::Ptr cloud { new PointCloudT };
-    std::string id { "cloud" };
+template<typename PT>
+struct _PointCloud
+{
+    pcl::PointCloud<PT>::Ptr cloud{std::make_shared<pcl::PointCloud<PT>>()};
+    std::string id{"cloud"};
 };
+typedef _PointCloud<PointT> PointCloud;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -33,31 +38,38 @@ public:
 
 protected:
     pcl::visualization::PCLVisualizer::Ptr _viewer;
-    std::shared_ptr<PointCloud> _pc { std::make_shared<PointCloud>() };
+    std::shared_ptr<_PointCloud<PointXYZ>> _pcXYZ{std::make_shared<_PointCloud<PointXYZ>>()};
+    std::shared_ptr<PointCloud> _pc{std::make_shared<PointCloud>()};
 
 private:
     void setFileMenuActions();
     void setButtonsActions();
     void openFile();
+    void xyz2xyzrgb(const std::shared_ptr<_PointCloud<PointXYZ>>,
+                    std::shared_ptr<_PointCloud<pcl::PointXYZRGB>>,
+                    const uint8_t r,
+                    const uint8_t g,
+                    const uint8_t b);
 
     void sorSetParams();
     void outlierRemoval();
+    void voxelGridFilter();
+    void ransacSegmentation();
 
-    Ui::MainWindow* ui;
-    int loadCloud(const std::string&);
+    Ui::MainWindow *ui;
+    int loadCloud(std::string_view);
 
-    void visualizeInNewTab(const std::shared_ptr<PointCloud> pc);
-    void visualize(const std::shared_ptr<PointCloud> pc);
+    template<typename PC>
+    void visualizeInNewTab(const std::shared_ptr<PC> pc);
+    template<typename PC>
+    void visualize(const std::shared_ptr<PC> pc);
     void refreshView();
-    PCLQVTKWidget* newTab(const std::string& tab_name);
+    PCLQVTKWidget *newTab(std::string_view tab_name);
 
-    QTabWidget* _tabWidget;
+    QTabWidget *_tabWidget;
     PCLQVTKWidget* _vtkWidget;
 
-    enum class FILEFORMATS { pcd,
-        ply,
-        obj,
-        other };
+    enum class FILEFORMATS { pcd, ply, obj, other };
     FILEFORMATS get_format(const std::string& file)
     {
         std::string format { file.substr(file.size() - 3) };
@@ -74,7 +86,4 @@ private:
     // Move to another file
     float _sor_standardDeviation;
     uint _sor_kMean;
-
-signals:
-    void sigNewTab(const std::string& tabname);
 };
