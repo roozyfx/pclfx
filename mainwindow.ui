@@ -64,13 +64,13 @@
 Segmentation</string>
      </property>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
        <y>190</y>
        <width>131</width>
-       <height>91</height>
+       <height>136</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -145,7 +145,7 @@ Segmentation</string>
       </item>
      </layout>
     </widget>
-    <widget class="QWidget" name="">
+    <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -256,7 +256,7 @@ Segmentation</string>
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="pbShowOuliers">
+           <widget class="QPushButton" name="pbShowOutliers">
             <property name="text">
              <string>Outliers</string>
             </property>

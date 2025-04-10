@@ -20,10 +20,15 @@ add_definitions(${PCL_DEFINITIONS})
 
 
 set(PROJECT_SOURCES
+        common.hpp
+        filter.cpp
+        filter.h
         main.cpp
         mainwindow.cpp
         mainwindow.h
         mainwindow.ui
+        ransac.cpp
+        ransac.h
 )
 message("//===================================================")
 message("Qt version: ${QT_VERSION_MAJOR}")

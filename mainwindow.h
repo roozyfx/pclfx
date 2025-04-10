@@ -1,33 +1,19 @@
 #pragma once
-
 #include <QMainWindow>
 #include "./ui_mainwindow.h"
-#include <cstdint>
+#include "common.hpp"
+#include "filter.h"
+#include "ransac.h"
 #include <iostream>
 #include <memory>
-// Point Cloud Library
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/visualization/qvtk_compatibility.h>
-
-typedef pcl::PointXYZ PointXYZ;
-// typedef pcl::PointXYZRGB PointT;
-typedef pcl::PointXYZ PointT;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
 }
 QT_END_NAMESPACE
-
-template<typename PT>
-struct _PointCloud
-{
-    pcl::PointCloud<PT>::Ptr cloud{std::make_shared<pcl::PointCloud<PT>>()};
-    std::string id{"cloud"};
-};
-typedef _PointCloud<PointT> PointCloud;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -42,21 +28,18 @@ protected:
     std::shared_ptr<PointCloud> _pc{std::make_shared<PointCloud>()};
 
 private:
+    Filter *_filter;
+    Ransac *_ransac;
     void setFileMenuActions();
     void setButtonsActions();
     void openFile();
-    void xyz2xyzrgb(const std::shared_ptr<_PointCloud<PointXYZ>>,
-                    std::shared_ptr<_PointCloud<pcl::PointXYZRGB>>,
-                    const uint8_t r,
-                    const uint8_t g,
-                    const uint8_t b);
 
     void sorSetParams();
     void outlierRemoval();
     void voxelGridFilter();
-    void ransacSegmentation();
 
     Ui::MainWindow *ui;
+    void initParams();
     int loadCloud(std::string_view);
 
     template<typename PC>
@@ -82,8 +65,4 @@ private:
             return FILEFORMATS::ply;
         return FILEFORMATS::other;
     }
-
-    // Move to another file
-    float _sor_standardDeviation;
-    uint _sor_kMean;
 };
