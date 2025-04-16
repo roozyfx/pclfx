@@ -1,5 +1,4 @@
 #include "ransac.h"
-#include "common.hpp"
 #include <pcl/ModelCoefficients.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/sample_consensus/method_types.h>

@@ -5,10 +5,6 @@
 
 using std::cout, std::endl;
 
-Filter::Filter(std::shared_ptr<PointCloud> pointCloud)
-    : _pc{pointCloud}
-{}
-
 void Filter::outlierRemoval()
 {
     cout << "Std Dev: " << _standardDeviation << endl;

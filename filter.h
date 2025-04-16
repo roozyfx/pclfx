@@ -5,7 +5,36 @@
 class Filter
 {
 public:
-    Filter(std::shared_ptr<PointCloud> pointCloud);
+    Filter(std::shared_ptr<PointCloud> pointCloud)
+        : _pc{pointCloud}
+    {}
+    Filter(std::shared_ptr<PointCloud> pointCloud,
+           const double stdDev,
+           const uint kMean,
+           const double voxelGrid_x,
+           const double voxelGrid_y,
+           const double voxelGrid_z)
+        : _pc{pointCloud}
+        , _standardDeviation{stdDev}
+        , _kMean{kMean}
+        , _vg_x{voxelGrid_x}
+        , _vg_y{voxelGrid_y}
+        , _vg_z{voxelGrid_z}
+    {}
+    Filter(std::shared_ptr<PointCloud> pointCloud,
+           const double voxelGrid_x,
+           const double voxelGrid_y,
+           const double voxelGrid_z)
+        : _pc{pointCloud}
+        , _vg_x{voxelGrid_x}
+        , _vg_y{voxelGrid_y}
+        , _vg_z{voxelGrid_z}
+    {}
+    Filter(std::shared_ptr<PointCloud> pointCloud, const double stdDev, const uint kMean)
+        : _pc{pointCloud}
+        , _standardDeviation{stdDev}
+        , _kMean{kMean}
+    {}
 
     void outlierRemoval();
     std::shared_ptr<PointCloud> voxelGridFilter();
