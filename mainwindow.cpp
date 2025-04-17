@@ -101,8 +101,7 @@ void MainWindow::setButtonsActions()
 
 void MainWindow::openFile()
 {
-    std::unique_ptr<QWidget> temp { std::make_unique<QWidget>() };
-    std::string cloudFile{(QFileDialog::getOpenFileName(temp.get(),
+    std::string cloudFile{(QFileDialog::getOpenFileName(this,
                                                         tr("Open Image"),
                                                         "/home/fx/rf/pclfx/data/tutorials",
                                                         tr("Point Cloud File (*.pcd "
@@ -114,7 +113,7 @@ void MainWindow::openFile()
         return;
 
     if (loadCloud(cloudFile))
-        visualizeInNewTab(_pc);
+        visualizeInNewTab(_pcColor);
     else
         std::cout << "Unsupported or invalid file format\n";
 }
@@ -124,8 +123,8 @@ bool MainWindow::loadCloud(std::string_view filename)
     if (!Utils::loadFile(filename, _pc)) //unsupported file format
         return false;
 
-    // xyz2xyzrgb(_pcXYZ, _pc, 70, 220, 10);
-    // pcl::copyPointCloud(*_pcXYZ->cloud, *_pc->cloud);
+    pcl::copyPointCloud(*_pc->cloud, *_pcColor->cloud);
+    Utils::colorize(_pc, _pcColor, 70, 220, 10);
     // set filename as the point cloud id
     _pc->id = std::filesystem::path(filename).filename().string();
 

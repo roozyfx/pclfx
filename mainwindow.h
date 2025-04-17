@@ -23,8 +23,8 @@ public:
 
 protected:
     pcl::visualization::PCLVisualizer::Ptr _viewer;
-    // std::shared_ptr<_PointCloud<PointXYZ>> _pcXYZ{std::make_shared<_PointCloud<PointXYZ>>()};
     std::shared_ptr<PointCloud> _pc{std::make_shared<PointCloud>()};
+    std::shared_ptr<PointCloudColor> _pcColor{std::make_shared<PointCloudColor>()};
 
 private:
     Ui::MainWindow *ui;

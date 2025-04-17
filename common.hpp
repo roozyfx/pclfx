@@ -10,9 +10,8 @@
 #include <thread>
 #include <vector>
 
-typedef pcl::PointXYZ PointXYZ;
-// typedef pcl::PointXYZRGB PointT;
-typedef pcl::PointXYZ PointT;
+typedef pcl::PointXYZ Point;
+typedef pcl::PointXYZRGB PointColor;
 
 template<typename PT>
 struct _PointCloud
@@ -20,13 +19,14 @@ struct _PointCloud
     pcl::PointCloud<PT>::Ptr cloud{std::make_shared<pcl::PointCloud<PT>>()};
     std::string id{"cloud"};
 };
-typedef _PointCloud<PointT> PointCloud;
+typedef _PointCloud<Point> PointCloud;
+typedef _PointCloud<PointColor> PointCloudColor;
 
 //@todo: make a better solution for coloring, e.g. user can change via UI
 namespace Utils {
 
-inline void _xyz2xyzrgb(std::shared_ptr<const _PointCloud<PointXYZ>> in,
-                        std::shared_ptr<_PointCloud<pcl::PointXYZRGB>> out,
+inline void _xyz2xyzrgb(std::shared_ptr<const PointCloud> in,
+                        std::shared_ptr<PointCloudColor> out,
                         const size_t begin,
                         const size_t end,
                         const uint8_t r,
@@ -45,11 +45,11 @@ inline void _xyz2xyzrgb(std::shared_ptr<const _PointCloud<PointXYZ>> in,
     }
 }
 
-inline void xyz2xyzrgb(std::shared_ptr<const _PointCloud<PointXYZ>> in,
-                       std::shared_ptr<_PointCloud<pcl::PointXYZRGB>> out,
-                       const uint8_t r,
-                       const uint8_t g,
-                       const uint8_t b)
+inline void colorize(std::shared_ptr<const PointCloud> in,
+                     std::shared_ptr<PointCloudColor> out,
+                     const uint8_t r,
+                     const uint8_t g,
+                     const uint8_t b)
 {
     auto num_threads{std::thread::hardware_concurrency()};
     num_threads = std::max(1u, (num_threads > 4) ? num_threads - 2 : num_threads);
@@ -75,14 +75,15 @@ inline void xyz2xyzrgb(std::shared_ptr<const _PointCloud<PointXYZ>> in,
     }
 }
 
+template<typename PCT>
 class IFileLoader
 {
 protected:
-    std::shared_ptr<PointCloud> _pc;
+    std::shared_ptr<PCT> _pc;
     std::string_view _file;
 
 public:
-    IFileLoader(std::string_view file, std::shared_ptr<PointCloud> pc)
+    IFileLoader(std::string_view file, std::shared_ptr<PCT> pc)
         : _file{file}
         , _pc{pc}
     {}
@@ -91,54 +92,61 @@ public:
     virtual void loadFile() = 0;
 };
 
-class UnsupportedFormat : public IFileLoader
+template<typename PCT>
+class UnsupportedFormat : public IFileLoader<PCT>
 {
 public:
-    UnsupportedFormat(std::string_view file, std::shared_ptr<PointCloud> pc)
-        : IFileLoader(file, pc)
+    UnsupportedFormat(std::string_view file, std::shared_ptr<PCT> pc)
+        : IFileLoader<PCT>(file, pc)
     {}
 
-    void loadFile() final { PCL_ERROR("Unsupported file format, %s \n", _file); }
+    void loadFile() final { PCL_ERROR("Unsupported file format, %s \n", IFileLoader<PCT>::_file); }
 };
 
-class PCDLoader : public IFileLoader
+template<typename PCT>
+class PCDLoader : public IFileLoader<PCT>
 {
 public:
     PCDLoader(std::string_view file, std::shared_ptr<PointCloud> pc)
-        : IFileLoader(file, pc)
+        : IFileLoader<PCT>(file, pc)
     {}
     void loadFile() final
     {
-        if (pcl::io::loadPCDFile(_file.data(), *(_pc->cloud)) == -1) {
-            PCL_ERROR("Couldn't read file %s \n", _file);
+        if (pcl::io::loadPCDFile(IFileLoader<PCT>::_file.data(), *(IFileLoader<PCT>::_pc->cloud))
+            == -1) {
+            PCL_ERROR("Couldn't read file %s \n", IFileLoader<PCT>::_file);
         }
     }
 };
 
-class PLYLoader : public IFileLoader
+template<typename PCT>
+class PLYLoader : public IFileLoader<PCT>
 {
 public:
     PLYLoader(std::string_view file, std::shared_ptr<PointCloud> pc)
-        : IFileLoader(file, pc)
+        : IFileLoader<PCT>(file, pc)
     {}
     void loadFile() final
     {
-        if (pcl::io::loadPLYFile(_file.data(), *(_pc->cloud)) == -1) {
-            PCL_ERROR("Couldn't read file %s \n", _file);
+        if (pcl::io::loadPLYFile(IFileLoader<PCT>::_file.data(), *(IFileLoader<PCT>::_pc->cloud))
+            == -1) {
+            PCL_ERROR("Couldn't read file %s \n", IFileLoader<PCT>::_file);
         }
     }
 };
 
-class OBJLoader : public IFileLoader
+template<typename PCT>
+class OBJLoader : public IFileLoader<PCT>
 {
 public:
     OBJLoader(std::string_view file, std::shared_ptr<PointCloud> pc)
-        : IFileLoader(file, pc)
+        : IFileLoader<PCT>(file, pc)
     {}
     void loadFile() final
     {
-        if (pcl::io::loadOBJFile(_file.data(), *(_pc->cloud)) == -1) {
-            PCL_ERROR("Couldn't read file %s \n", _file);
+        if (pcl::io::loadOBJFile(IFileLoader<PCT>::_file.data(), *(IFileLoader<PCT>::_pc->cloud))
+            == -1) {
+            PCL_ERROR("Couldn't read file %s \n", IFileLoader<PCT>::_file);
         }
     }
 };
@@ -161,22 +169,23 @@ inline FILEFORMATS get_format(std::string_view file)
     return FILEFORMATS::other;
 }
 
-inline bool loadFile(const std::string_view filename, std::shared_ptr<PointCloud> pc)
+template<typename PCT>
+inline bool loadFile(const std::string_view filename, std::shared_ptr<PCT> pc)
 {
-    std::unique_ptr<IFileLoader> loader;
+    std::unique_ptr<IFileLoader<PCT>> loader;
     auto format{get_format(filename)};
     switch (format) {
     case FILEFORMATS::pcd:
-        loader = std::make_unique<PCDLoader>(filename, pc);
+        loader = std::make_unique<PCDLoader<PCT>>(filename, pc);
         break;
     case FILEFORMATS::ply:
-        loader = std::make_unique<PLYLoader>(filename, pc);
+        loader = std::make_unique<PLYLoader<PCT>>(filename, pc);
         break;
     case FILEFORMATS::obj:
-        loader = std::make_unique<OBJLoader>(filename, pc);
+        loader = std::make_unique<OBJLoader<PCT>>(filename, pc);
         break;
     default:
-        loader = std::make_unique<UnsupportedFormat>(filename, pc);
+        loader = std::make_unique<UnsupportedFormat<PCT>>(filename, pc);
         return false;
     }
     loader->loadFile();

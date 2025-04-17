@@ -15,7 +15,7 @@ void Ransac::ransacSegmentation()
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
 
     // Create the segmentation object
-    pcl::SACSegmentation<PointT> seg;
+    pcl::SACSegmentation<Point> seg;
     // Optional
     seg.setOptimizeCoefficients(true);
     // Mandatory
@@ -35,7 +35,7 @@ void Ransac::ransacSegmentation()
 
     std::cerr << "Model inliers: " << inliers->indices.size() << std::endl;
 
-    pcl::ExtractIndices<PointT> extract;
+    pcl::ExtractIndices<Point> extract;
     std::shared_ptr<PointCloud> extractedCloud{std::make_shared<PointCloud>()};
 
     extract.setInputCloud(_pc->cloud);
@@ -44,5 +44,5 @@ void Ransac::ransacSegmentation()
     extract.filter(*extractedCloud->cloud);
     extractedCloud->id = "extractedCloud";
 
-    Utils::xyz2xyzrgb(extractedCloud, _result, 40, 200, 50);
+    Utils::colorize(extractedCloud, _result, 40, 200, 50);
 }

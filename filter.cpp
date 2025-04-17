@@ -10,7 +10,7 @@ void Filter::outlierRemoval()
     cout << "Std Dev: " << _standardDeviation << endl;
     cout << "K Mean: " << _kMean << endl;
     // Create the filtering object
-    pcl::StatisticalOutlierRemoval<PointT> sor;
+    pcl::StatisticalOutlierRemoval<Point> sor;
 
     sor.setInputCloud(_pc->cloud);
 
@@ -28,7 +28,7 @@ void Filter::outlierRemoval()
 std::shared_ptr<PointCloud> Filter::voxelGridFilter()
 {
     // Create the filtering object
-    pcl::VoxelGrid<PointT> vg;
+    pcl::VoxelGrid<Point> vg;
     vg.setInputCloud(_pc->cloud);
     vg.setLeafSize(_vg_x, _vg_y, _vg_z);
     std::shared_ptr<PointCloud> vgResult{std::make_shared<PointCloud>()};
