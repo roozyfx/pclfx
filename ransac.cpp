@@ -5,11 +5,11 @@
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
 
-Ransac::Ransac(std::shared_ptr<PointCloud> pointCloud)
-    : _pc{pointCloud}
+Ransac::Ransac(std::shared_ptr<PointCloud> point_cloud)
+    : _pc{point_cloud}
 {}
 
-void Ransac::ransacSegmentation()
+void Ransac::RansacSegmentation()
 {
     pcl::ModelCoefficients::Ptr coefficients(new pcl::ModelCoefficients);
     pcl::PointIndices::Ptr inliers(new pcl::PointIndices);
@@ -44,5 +44,5 @@ void Ransac::ransacSegmentation()
     extract.filter(*extractedCloud->cloud);
     extractedCloud->id = "extractedCloud";
 
-    Utils::colorize(extractedCloud, _result, 40, 200, 50);
+    Utils::Colorize(extractedCloud, _result, 40, 200, 50);
 }

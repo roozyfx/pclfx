@@ -24,26 +24,26 @@ public:
 protected:
     pcl::visualization::PCLVisualizer::Ptr _viewer;
     std::shared_ptr<PointCloud> _pc{std::make_shared<PointCloud>()};
-    std::shared_ptr<PointCloudColor> _pcColor{std::make_shared<PointCloudColor>()};
+    std::shared_ptr<PointCloudColor> _pc_color{std::make_shared<PointCloudColor>()};
 
 private:
     Ui::MainWindow *ui;
     std::unique_ptr<Filter> _filter;
     std::unique_ptr<Ransac> _ransac;
-    void setFileMenuActions();
-    void setButtonsActions();
-    void openFile();
+    void SetFileMenuActions();
+    void SetButtonsActions();
+    void OpenFile();
 
-    void initParams();
-    bool loadCloud(std::string_view);
+    void InitParams();
+    bool LoadCloud(std::string_view file_name);
 
     template<typename PC>
-    void visualizeInNewTab(const std::shared_ptr<PC> pc);
+    void VisualizeInNewTab(const std::shared_ptr<PC> pc);
     template<typename PC>
-    void visualize(const std::shared_ptr<PC> pc);
-    void refreshView();
-    void newTab(std::string_view tab_name);
+    void Visualize(const std::shared_ptr<PC> pc);
+    void RefreshView();
+    void NewTab(std::string_view tab_name);
 
-    QTabWidget *_tabWidget;
-    std::vector<std::unique_ptr<PCLQVTKWidget>> _vtkWidgets;
+    QTabWidget *_tab_widget;
+    std::vector<std::unique_ptr<PCLQVTKWidget>> _vtk_widgets;
 };

@@ -4,9 +4,9 @@
 class Ransac
 {
 public:
-    Ransac(std::shared_ptr<PointCloud> pointCloud);
-    void ransacSegmentation();
-    inline std::shared_ptr<_PointCloud<pcl::PointXYZRGB>> getResult() { return _result; }
+    Ransac(std::shared_ptr<PointCloud> point_cloud);
+    void RansacSegmentation();
+    inline std::shared_ptr<_PointCloud<pcl::PointXYZRGB>> GetResult() { return _result; }
 
 private:
     std::shared_ptr<PointCloud> _pc;

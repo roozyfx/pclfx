@@ -23,13 +23,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowTitle("PCL viewer");
-    _tabWidget = new QTabWidget(ui->centralWidget);
-    _tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
-    _tabWidget->setGeometry(QRect(10, 10, 1940, 1100));
+    _tab_widget = new QTabWidget(ui->centralWidget);
+    _tab_widget->setObjectName(QString::fromUtf8("tabWidget"));
+    _tab_widget->setGeometry(QRect(10, 10, 1940, 1100));
 
-    initParams();
-    setFileMenuActions();
-    setButtonsActions();
+    InitParams();
+    SetFileMenuActions();
+    SetButtonsActions();
 }
 
 MainWindow::~MainWindow()
@@ -38,124 +38,125 @@ MainWindow::~MainWindow()
         delete ui;
 }
 
-void MainWindow::initParams()
+void MainWindow::InitParams()
 {
     if (_filter) {
-        _filter->stdDev(ui->leStdDev->text().toDouble());
-        _filter->kMean(ui->leKMean->text().toUInt());
-        _filter->vg_x(ui->leLeafSizex->text().toDouble());
-        _filter->vg_y(ui->leLeafSizey->text().toDouble());
-        _filter->vg_z(ui->leLeafSizez->text().toDouble());
+        _filter->StdDev(ui->le_std_dev->text().toDouble());
+        _filter->KMean(ui->le_k_mean->text().toUInt());
+        _filter->Vg_x(ui->le_leaf_size_x->text().toDouble());
+        _filter->Vg_y(ui->le_leaf_size_y->text().toDouble());
+        _filter->Vg_z(ui->le_leaf_size_z->text().toDouble());
     }
 }
 
-void MainWindow::setFileMenuActions()
+void MainWindow::SetFileMenuActions()
 {
-    connect(ui->actionOpen, &QAction::triggered, this, &MainWindow::openFile);
-    connect(ui->actionExit, &QAction::triggered, this, &QApplication::quit);
+    connect(ui->action_open, &QAction::triggered, this, &MainWindow::OpenFile);
+    connect(ui->action_exit, &QAction::triggered, this, &QApplication::quit);
 }
 
-void MainWindow::setButtonsActions()
+void MainWindow::SetButtonsActions()
 {
-    connect(ui->leStdDev, &QLineEdit::returnPressed, this, [this]() {
-        _filter->stdDev(ui->leStdDev->text().toDouble());
+    connect(ui->le_std_dev, &QLineEdit::returnPressed, this, [this]() {
+        _filter->StdDev(ui->le_std_dev->text().toDouble());
     });
-    connect(ui->leKMean, &QLineEdit::returnPressed, this, [this]() {
-        _filter->kMean(ui->leKMean->text().toUInt());
+    connect(ui->le_k_mean, &QLineEdit::returnPressed, this, [this]() {
+        _filter->KMean(ui->le_k_mean->text().toUInt());
     });
-    connect(ui->pbRemoveOutliers, &QPushButton::released, this, [this]() {
-        _filter->outlierRemoval();
+    connect(ui->pb_remove_outliers, &QPushButton::released, this, [this]() {
+        _filter->OutlierRemoval();
     });
-    auto warnMessage = []() {
-        QMessageBox msgBox;
-        msgBox.setText("Set Parameters and push Remove Outliers button first.");
-        msgBox.exec();
+    auto WarnMessage = []() {
+        QMessageBox msg_box;
+        msg_box.setText("Set Parameters and push Remove Outliers button first.");
+        msg_box.exec();
     };
-    connect(ui->pbShowInliers, &QPushButton::released, this, [this, warnMessage]() {
-        auto inliers{_filter->sorInliers()};
-        (!inliers->cloud->empty()) ? this->visualizeInNewTab(inliers) : warnMessage();
+    connect(ui->pb_show_inliers, &QPushButton::released, this, [this, WarnMessage]() {
+        auto inliers{_filter->SorInliers()};
+        (!inliers->cloud->empty()) ? this->VisualizeInNewTab(inliers) : WarnMessage();
     });
-    connect(ui->pbShowOutliers, &QPushButton::released, this, [this, warnMessage]() {
-        auto outliers{_filter->sorOutliers()};
-        (!outliers->cloud->empty()) ? this->visualizeInNewTab(outliers) : warnMessage();
-    });
-
-    connect(ui->leLeafSizex, &QLineEdit::returnPressed, this, [this]() {
-        _filter->vg_x(ui->leLeafSizex->text().toDouble());
-    });
-    connect(ui->leLeafSizey, &QLineEdit::returnPressed, this, [this]() {
-        _filter->vg_y(ui->leLeafSizey->text().toDouble());
-    });
-    connect(ui->leLeafSizez, &QLineEdit::returnPressed, this, [this]() {
-        _filter->vg_z(ui->leLeafSizez->text().toDouble());
+    connect(ui->pb_show_outliers, &QPushButton::released, this, [this, WarnMessage]() {
+        auto outliers{_filter->SorOutliers()};
+        (!outliers->cloud->empty()) ? this->VisualizeInNewTab(outliers) : WarnMessage();
     });
 
-    connect(ui->pbVoxelGrid, &QPushButton::released, this, [this]() {
-        visualizeInNewTab(_filter->voxelGridFilter());
+    connect(ui->le_leaf_size_x, &QLineEdit::returnPressed, this, [this]() {
+        _filter->Vg_x(ui->le_leaf_size_x->text().toDouble());
     });
-    connect(ui->pbRansac, &QPushButton::released, this, [this]() {
-        _ransac->ransacSegmentation();
-        visualizeInNewTab<_PointCloud<pcl::PointXYZRGB>>(_ransac->getResult());
+    connect(ui->le_leaf_size_y, &QLineEdit::returnPressed, this, [this]() {
+        _filter->Vg_y(ui->le_leaf_size_y->text().toDouble());
+    });
+    connect(ui->le_leaf_size_z, &QLineEdit::returnPressed, this, [this]() {
+        _filter->Vg_z(ui->le_leaf_size_z->text().toDouble());
+    });
+
+    connect(ui->pb_voxel_grid, &QPushButton::released, this, [this]() {
+        VisualizeInNewTab(_filter->VoxelGridFilter());
+    });
+    connect(ui->pb_ransac, &QPushButton::released, this, [this]() {
+        _ransac->RansacSegmentation();
+        VisualizeInNewTab<_PointCloud<pcl::PointXYZRGB>>(_ransac->GetResult());
     });
 }
 
-void MainWindow::openFile()
+void MainWindow::OpenFile()
 {
-    std::string cloudFile{(QFileDialog::getOpenFileName(this,
-                                                        tr("Open Image"),
-                                                        "/home/fx/rf/pclfx/data/tutorials",
-                                                        tr("Point Cloud File (*.pcd "
-                                                           "*.ply "
-                                                           "*.obj *.PCD *.PLY *.OBJ *.*)")))
-                              .toStdString()};
+    std::string cloud_file{(QFileDialog::getOpenFileName(this,
+                                                         tr("Open Image"),
+                                                         "/home/fx/rf/pclfx/data/tutorials",
+                                                         tr("Point Cloud File (*.pcd "
+                                                            "*.ply "
+                                                            "*.obj *.PCD *.PLY *.OBJ *.*)")))
+                               .toStdString()};
 
-    if (cloudFile.empty())
+    if (cloud_file.empty())
         return;
 
-    if (loadCloud(cloudFile))
-        visualizeInNewTab(_pcColor);
+    if (LoadCloud(cloud_file))
+        VisualizeInNewTab(_pc_color);
     else
         std::cout << "Unsupported or invalid file format\n";
 }
 
-bool MainWindow::loadCloud(std::string_view filename)
+bool MainWindow::LoadCloud(std::string_view file_name)
 {
-    if (!Utils::loadFile(filename, _pc)) //unsupported file format
+    if (!Utils::LoadFile(file_name, _pc)) //unsupported file format
         return false;
 
-    pcl::copyPointCloud(*_pc->cloud, *_pcColor->cloud);
-    Utils::colorize(_pc, _pcColor, 70, 220, 10);
+    pcl::copyPointCloud(*_pc->cloud, *_pc_color->cloud);
+    Utils::Colorize(_pc, _pc_color, 70, 220, 10);
     // set filename as the point cloud id
-    _pc->id = std::filesystem::path(filename).filename().string();
+    _pc->id = std::filesystem::path(file_name).filename().string();
 
     // Print some Info
     std::cout << "Loaded " << _pc->cloud->width * _pc->cloud->height << " data points from "
-              << filename << " with the following fields: " << std::endl
-              << "Width: " << _pc->cloud->width << "\tHeight: " << _pc->cloud->height << "\nHeader: "
-              << _pc->cloud->header << "\nIs " << (_pc->cloud->is_dense ? "" : " not") << " Dense" << std::endl;
+              << file_name << " with the following fields: " << std::endl
+              << "Width: " << _pc->cloud->width << "\tHeight: " << _pc->cloud->height
+              << "\nHeader: " << _pc->cloud->header << "\nIs "
+              << (_pc->cloud->is_dense ? "" : " not") << " Dense" << std::endl;
     return true;
 }
 
 template<typename PC>
-void MainWindow::visualizeInNewTab(const std::shared_ptr<PC> pc)
+void MainWindow::VisualizeInNewTab(const std::shared_ptr<PC> pc)
 {
-    newTab(pc->id);
-    visualize(pc);
-    refreshView();
+    NewTab(pc->id);
+    Visualize(pc);
+    RefreshView();
 }
 
 /**  Visualize the point cloud **/
 template<typename PC>
-void MainWindow::visualize(const std::shared_ptr<PC> pc)
+void MainWindow::Visualize(const std::shared_ptr<PC> pc)
 {
     // Set up the QVTK window
 #if VTK_MAJOR_VERSION > 8
     auto renderer = vtkSmartPointer<vtkRenderer>::New();
-    auto renderWindow = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
-    renderWindow->AddRenderer(renderer);
-    _viewer.reset(new pcl::visualization::PCLVisualizer(renderer, renderWindow, "viewer", false));
-    _vtkWidgets.back()->setRenderWindow(_viewer->getRenderWindow());
-    _viewer->setupInteractor(_vtkWidgets.back()->interactor(), _vtkWidgets.back()->renderWindow());
+    auto render_window = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
+    render_window->AddRenderer(renderer);
+    _viewer.reset(new pcl::visualization::PCLVisualizer(renderer, render_window, "viewer", false));
+    _vtk_widgets.back()->setRenderWindow(_viewer->getRenderWindow());
+    _viewer->setupInteractor(_vtk_widgets.back()->interactor(), _vtk_widgets.back()->renderWindow());
 #else
     viewer.reset(new pcl::visualization::PCLVisualizer("viewer", false));
     vtkWidget->setRenderWindow(viewer->getRenderWindow());
@@ -165,25 +166,25 @@ void MainWindow::visualize(const std::shared_ptr<PC> pc)
     _viewer->addPointCloud(pc->cloud, pc->id);
 }
 
-void MainWindow::refreshView()
+void MainWindow::RefreshView()
 {
 #if VTK_MAJOR_VERSION > 8
-    _vtkWidgets.back()->renderWindow()->Render();
+    _vtk_widgets.back()->renderWindow()->Render();
 #else
-    _vtkWidgets.back()->update();
+    _vtk_widgets.back()->update();
 #endif
 }
 
-void MainWindow::newTab(std::string_view tab_name)
+void MainWindow::NewTab(std::string_view tab_name)
 {
     QWidget *new_tab{new QWidget()};
     new_tab->setObjectName(QString::fromUtf8("tab0"));
-    std::unique_ptr<PCLQVTKWidget> vtkWidget = std::make_unique<PCLQVTKWidget>(new_tab);
-    vtkWidget->setObjectName(QString::fromUtf8("vtkWidge"));
-    vtkWidget->setGeometry(12, 12, 1920, 1080);
-    _tabWidget->addTab(new_tab, QString::fromStdString(tab_name.data()));
+    std::unique_ptr<PCLQVTKWidget> vtk_widget = std::make_unique<PCLQVTKWidget>(new_tab);
+    vtk_widget->setObjectName(QString::fromUtf8("vtkWidge"));
+    vtk_widget->setGeometry(12, 12, 1920, 1080);
+    _tab_widget->addTab(new_tab, QString::fromStdString(tab_name.data()));
     // auto shortcut = QShortcut (QKeySequence ("Ctrl+w"), _tabWidget);
-    _tabWidget->setCurrentWidget(new_tab);
+    _tab_widget->setCurrentWidget(new_tab);
 
-    _vtkWidgets.push_back(std::move(vtkWidget));
+    _vtk_widgets.push_back(std::move(vtk_widget));
 }

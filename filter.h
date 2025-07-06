@@ -5,57 +5,57 @@
 class Filter
 {
 public:
-    Filter(std::shared_ptr<PointCloud> pointCloud)
-        : _pc{pointCloud}
+    Filter(std::shared_ptr<PointCloud> point_cloud)
+        : _pc{point_cloud}
     {}
-    Filter(std::shared_ptr<PointCloud> pointCloud,
+    Filter(std::shared_ptr<PointCloud> point_cloud,
            const double stdDev,
            const uint kMean,
-           const double voxelGrid_x,
-           const double voxelGrid_y,
-           const double voxelGrid_z)
-        : _pc{pointCloud}
-        , _standardDeviation{stdDev}
-        , _kMean{kMean}
-        , _vg_x{voxelGrid_x}
-        , _vg_y{voxelGrid_y}
-        , _vg_z{voxelGrid_z}
+           const double voxel_grid_x,
+           const double voxel_grid_y,
+           const double voxel_grid_z)
+        : _pc{point_cloud}
+        , _standard_deviation{stdDev}
+        , _k_mean{kMean}
+        , _vg_x{voxel_grid_x}
+        , _vg_y{voxel_grid_y}
+        , _vg_z{voxel_grid_z}
     {}
-    Filter(std::shared_ptr<PointCloud> pointCloud,
-           const double voxelGrid_x,
-           const double voxelGrid_y,
-           const double voxelGrid_z)
-        : _pc{pointCloud}
-        , _vg_x{voxelGrid_x}
-        , _vg_y{voxelGrid_y}
-        , _vg_z{voxelGrid_z}
+    Filter(std::shared_ptr<PointCloud> point_cloud,
+           const double voxel_grid_x,
+           const double voxel_grid_y,
+           const double voxel_grid_z)
+        : _pc{point_cloud}
+        , _vg_x{voxel_grid_x}
+        , _vg_y{voxel_grid_y}
+        , _vg_z{voxel_grid_z}
     {}
-    Filter(std::shared_ptr<PointCloud> pointCloud, const double stdDev, const uint kMean)
-        : _pc{pointCloud}
-        , _standardDeviation{stdDev}
-        , _kMean{kMean}
+    Filter(std::shared_ptr<PointCloud> point_cloud, const double std_dev, const uint k_mean)
+        : _pc{point_cloud}
+        , _standard_deviation{std_dev}
+        , _k_mean{k_mean}
     {}
 
-    void outlierRemoval();
-    std::shared_ptr<PointCloud> voxelGridFilter();
+    void OutlierRemoval();
+    std::shared_ptr<PointCloud> VoxelGridFilter();
 
-    void stdDev(const double stdDev) { _standardDeviation = stdDev; }
-    void kMean(const uint kMean) { _kMean = kMean; }
+    void StdDev(const double std_dev) { _standard_deviation = std_dev; }
+    void KMean(const uint k_mean) { _k_mean = k_mean; }
 
-    void vg_x(double x) { _vg_x = x; }
-    void vg_y(double y) { _vg_y = y; }
-    void vg_z(double z) { _vg_z = z; }
+    void Vg_x(double x) { _vg_x = x; }
+    void Vg_y(double y) { _vg_y = y; }
+    void Vg_z(double z) { _vg_z = z; }
 
-    std::shared_ptr<PointCloud> sorInliers() const { return _sor_inliers; }
+    std::shared_ptr<PointCloud> SorInliers() const { return _sor_inliers; }
 
-    std::shared_ptr<PointCloud> sorOutliers() const { return _sor_outliers; }
+    std::shared_ptr<PointCloud> SorOutliers() const { return _sor_outliers; }
 
 private:
     std::shared_ptr<PointCloud> _pc;
     std::shared_ptr<PointCloud> _sor_inliers{std::make_shared<PointCloud>()};
     std::shared_ptr<PointCloud> _sor_outliers{std::make_shared<PointCloud>()};
-    double _standardDeviation;
-    uint _kMean;
+    double _standard_deviation;
+    uint _k_mean;
     double _vg_x;
     double _vg_y;
     double _vg_z;

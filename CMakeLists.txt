@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(1simple_qt_viewer VERSION 0.1 LANGUAGES CXX C)
+project(pclfx_qt VERSION 0.1 LANGUAGES CXX C)
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)

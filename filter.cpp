@@ -5,17 +5,17 @@
 
 using std::cout, std::endl;
 
-void Filter::outlierRemoval()
+void Filter::OutlierRemoval()
 {
-    cout << "Std Dev: " << _standardDeviation << endl;
-    cout << "K Mean: " << _kMean << endl;
+    cout << "Std Dev: " << _standard_deviation << endl;
+    cout << "K Mean: " << _k_mean << endl;
     // Create the filtering object
     pcl::StatisticalOutlierRemoval<Point> sor;
 
     sor.setInputCloud(_pc->cloud);
 
-    sor.setMeanK(_kMean);
-    sor.setStddevMulThresh(_standardDeviation);
+    sor.setMeanK(_k_mean);
+    sor.setStddevMulThresh(_standard_deviation);
 
     sor.filter(*_sor_inliers->cloud);
     _sor_inliers->id = "sor_inliers";
@@ -25,15 +25,15 @@ void Filter::outlierRemoval()
     _sor_outliers->id = "sor_outliers";
 }
 
-std::shared_ptr<PointCloud> Filter::voxelGridFilter()
+std::shared_ptr<PointCloud> Filter::VoxelGridFilter()
 {
     // Create the filtering object
     pcl::VoxelGrid<Point> vg;
     vg.setInputCloud(_pc->cloud);
     vg.setLeafSize(_vg_x, _vg_y, _vg_z);
-    std::shared_ptr<PointCloud> vgResult{std::make_shared<PointCloud>()};
-    vg.filter(*vgResult->cloud);
-    vgResult->id = "Voxel Grid";
+    std::shared_ptr<PointCloud> vg_result{std::make_shared<PointCloud>()};
+    vg.filter(*vg_result->cloud);
+    vg_result->id = "Voxel Grid";
 
-    return vgResult;
+    return vg_result;
 }

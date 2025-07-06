@@ -27,8 +27,8 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionOpen"/>
-    <addaction name="actionExit"/>
+    <addaction name="action_open"/>
+    <addaction name="action_exit"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -50,7 +50,7 @@
     <number>1</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <widget class="QPushButton" name="pbRansac">
+    <widget class="QPushButton" name="pb_ransac">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -70,12 +70,12 @@ Segmentation</string>
        <x>10</x>
        <y>190</y>
        <width>131</width>
-       <height>81</height>
+       <height>136</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="QPushButton" name="pbVoxelGrid">
+       <widget class="QPushButton" name="pb_voxel_grid">
         <property name="text">
          <string>Voxel Grid</string>
         </property>
@@ -93,7 +93,7 @@ Segmentation</string>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
-           <widget class="QLineEdit" name="leLeafSizex">
+           <widget class="QLineEdit" name="le_leaf_size_x">
             <property name="text">
              <string>0.01</string>
             </property>
@@ -113,7 +113,7 @@ Segmentation</string>
            </spacer>
           </item>
           <item>
-           <widget class="QLineEdit" name="leLeafSizey">
+           <widget class="QLineEdit" name="le_leaf_size_y">
             <property name="text">
              <string>0.01</string>
             </property>
@@ -133,7 +133,7 @@ Segmentation</string>
            </spacer>
           </item>
           <item>
-           <widget class="QLineEdit" name="leLeafSizez">
+           <widget class="QLineEdit" name="le_leaf_size_z">
             <property name="text">
              <string>0.01</string>
             </property>
@@ -156,7 +156,7 @@ Segmentation</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
-       <widget class="QPushButton" name="pbRemoveOutliers">
+       <widget class="QPushButton" name="pb_remove_outliers">
         <property name="text">
          <string>Remove Outliers</string>
         </property>
@@ -185,7 +185,7 @@ Segmentation</string>
          </spacer>
         </item>
         <item>
-         <widget class="QLineEdit" name="leStdDev">
+         <widget class="QLineEdit" name="le_std_dev">
           <property name="text">
            <string>1.0</string>
           </property>
@@ -216,7 +216,7 @@ Segmentation</string>
          </spacer>
         </item>
         <item>
-         <widget class="QLineEdit" name="leKMean">
+         <widget class="QLineEdit" name="le_k_mean">
           <property name="text">
            <string>50</string>
           </property>
@@ -236,7 +236,7 @@ Segmentation</string>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
-           <widget class="QPushButton" name="pbShowInliers">
+           <widget class="QPushButton" name="pb_show_inliers">
             <property name="text">
              <string>Inliers</string>
             </property>
@@ -256,7 +256,7 @@ Segmentation</string>
            </spacer>
           </item>
           <item>
-           <widget class="QPushButton" name="pbShowOutliers">
+           <widget class="QPushButton" name="pb_show_outliers">
             <property name="text">
              <string>Outliers</string>
             </property>
@@ -270,7 +270,7 @@ Segmentation</string>
     </widget>
    </widget>
   </widget>
-  <action name="actionOpen">
+  <action name="action_open">
    <property name="text">
     <string>Open...</string>
    </property>
@@ -278,7 +278,7 @@ Segmentation</string>
     <string>O</string>
    </property>
   </action>
-  <action name="actionExit">
+  <action name="action_exit">
    <property name="text">
     <string>Exit</string>
    </property>

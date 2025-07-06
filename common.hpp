@@ -45,7 +45,7 @@ inline void _xyz2xyzrgb(std::shared_ptr<const PointCloud> in,
     }
 }
 
-inline void colorize(std::shared_ptr<const PointCloud> in,
+inline void Colorize(std::shared_ptr<const PointCloud> in,
                      std::shared_ptr<PointCloudColor> out,
                      const uint8_t r,
                      const uint8_t g,
@@ -89,7 +89,7 @@ public:
     {}
 
     virtual ~IFileLoader() = default;
-    virtual void loadFile() = 0;
+    virtual void LoadFile() = 0;
 };
 
 template<typename PCT>
@@ -100,7 +100,7 @@ public:
         : IFileLoader<PCT>(file, pc)
     {}
 
-    void loadFile() final { PCL_ERROR("Unsupported file format, %s \n", IFileLoader<PCT>::_file); }
+    void LoadFile() final { PCL_ERROR("Unsupported file format, %s \n", IFileLoader<PCT>::_file); }
 };
 
 template<typename PCT>
@@ -110,7 +110,7 @@ public:
     PCDLoader(std::string_view file, std::shared_ptr<PointCloud> pc)
         : IFileLoader<PCT>(file, pc)
     {}
-    void loadFile() final
+    void LoadFile() final
     {
         if (pcl::io::loadPCDFile(IFileLoader<PCT>::_file.data(), *(IFileLoader<PCT>::_pc->cloud))
             == -1) {
@@ -126,7 +126,7 @@ public:
     PLYLoader(std::string_view file, std::shared_ptr<PointCloud> pc)
         : IFileLoader<PCT>(file, pc)
     {}
-    void loadFile() final
+    void LoadFile() final
     {
         if (pcl::io::loadPLYFile(IFileLoader<PCT>::_file.data(), *(IFileLoader<PCT>::_pc->cloud))
             == -1) {
@@ -142,7 +142,7 @@ public:
     OBJLoader(std::string_view file, std::shared_ptr<PointCloud> pc)
         : IFileLoader<PCT>(file, pc)
     {}
-    void loadFile() final
+    void LoadFile() final
     {
         if (pcl::io::loadOBJFile(IFileLoader<PCT>::_file.data(), *(IFileLoader<PCT>::_pc->cloud))
             == -1) {
@@ -153,7 +153,7 @@ public:
 
 enum class FILEFORMATS { pcd, ply, obj, other };
 
-inline FILEFORMATS get_format(std::string_view file)
+inline FILEFORMATS GetFormat(std::string_view file)
 {
     std::string extension{std::filesystem::path(file).extension().string()};
     // Convert to lowercase
@@ -170,25 +170,25 @@ inline FILEFORMATS get_format(std::string_view file)
 }
 
 template<typename PCT>
-inline bool loadFile(const std::string_view filename, std::shared_ptr<PCT> pc)
+inline bool LoadFile(const std::string_view file_name, std::shared_ptr<PCT> pc)
 {
     std::unique_ptr<IFileLoader<PCT>> loader;
-    auto format{get_format(filename)};
+    auto format{GetFormat(file_name)};
     switch (format) {
     case FILEFORMATS::pcd:
-        loader = std::make_unique<PCDLoader<PCT>>(filename, pc);
+        loader = std::make_unique<PCDLoader<PCT>>(file_name, pc);
         break;
     case FILEFORMATS::ply:
-        loader = std::make_unique<PLYLoader<PCT>>(filename, pc);
+        loader = std::make_unique<PLYLoader<PCT>>(file_name, pc);
         break;
     case FILEFORMATS::obj:
-        loader = std::make_unique<OBJLoader<PCT>>(filename, pc);
+        loader = std::make_unique<OBJLoader<PCT>>(file_name, pc);
         break;
     default:
-        loader = std::make_unique<UnsupportedFormat<PCT>>(filename, pc);
+        loader = std::make_unique<UnsupportedFormat<PCT>>(file_name, pc);
         return false;
     }
-    loader->loadFile();
+    loader->LoadFile();
 
     return true;
 }
