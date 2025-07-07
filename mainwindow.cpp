@@ -14,6 +14,7 @@
 #include <QMessageBox>
 #include <vtkGenericOpenGLRenderWindow.h>
 #endif
+#include <iterator>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -23,13 +24,11 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowTitle("PCL viewer");
-    _tab_widget = new QTabWidget(ui->centralWidget);
-    _tab_widget->setObjectName(QString::fromUtf8("tabWidget"));
-    _tab_widget->setGeometry(QRect(10, 10, 1940, 1100));
 
     InitParams();
     SetFileMenuActions();
     SetButtonsActions();
+    SetUpTabWidget();
 }
 
 MainWindow::~MainWindow()
@@ -99,11 +98,21 @@ void MainWindow::SetButtonsActions()
     });
 }
 
+void MainWindow::SetUpTabWidget()
+{
+    _tab_widget = new QTabWidget(ui->central_widget);
+    _tab_widget->setObjectName(QString::fromUtf8("tabWidget"));
+    _tab_widget->setGeometry(QRect(10, 10, 1940, 1100));
+    _tab_widget->setMovable(true);
+    _tab_widget->setTabsClosable(true);
+    connect(_tab_widget, &QTabWidget::tabCloseRequested, this, &MainWindow::CloseTab);
+}
+
 void MainWindow::OpenFile()
 {
     std::string cloud_file{(QFileDialog::getOpenFileName(this,
                                                          tr("Open Image"),
-                                                         "/home/fx/rf/pclfx/data/tutorials",
+                                                         "../../../data/tutorials",
                                                          tr("Point Cloud File (*.pcd "
                                                             "*.ply "
                                                             "*.obj *.PCD *.PLY *.OBJ *.*)")))
@@ -127,6 +136,7 @@ bool MainWindow::LoadCloud(std::string_view file_name)
     Utils::Colorize(_pc, _pc_color, 70, 220, 10);
     // set filename as the point cloud id
     _pc->id = std::filesystem::path(file_name).filename().string();
+    _pc_color->id = "[" + _pc->id + "]";
 
     // Print some Info
     std::cout << "Loaded " << _pc->cloud->width * _pc->cloud->height << " data points from "
@@ -151,8 +161,8 @@ void MainWindow::Visualize(const std::shared_ptr<PC> pc)
 {
     // Set up the QVTK window
 #if VTK_MAJOR_VERSION > 8
-    auto renderer = vtkSmartPointer<vtkRenderer>::New();
-    auto render_window = vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New();
+    auto renderer{vtkSmartPointer<vtkRenderer>::New()};
+    auto render_window{vtkSmartPointer<vtkGenericOpenGLRenderWindow>::New()};
     render_window->AddRenderer(renderer);
     _viewer.reset(new pcl::visualization::PCLVisualizer(renderer, render_window, "viewer", false));
     _vtk_widgets.back()->setRenderWindow(_viewer->getRenderWindow());
@@ -178,13 +188,24 @@ void MainWindow::RefreshView()
 void MainWindow::NewTab(std::string_view tab_name)
 {
     QWidget *new_tab{new QWidget()};
-    new_tab->setObjectName(QString::fromUtf8("tab0"));
+    new_tab->setObjectName(QString(tab_name.data()));
     std::unique_ptr<PCLQVTKWidget> vtk_widget = std::make_unique<PCLQVTKWidget>(new_tab);
-    vtk_widget->setObjectName(QString::fromUtf8("vtkWidge"));
+    vtk_widget->setObjectName(QString(tab_name.data()));
     vtk_widget->setGeometry(12, 12, 1920, 1080);
-    _tab_widget->addTab(new_tab, QString::fromStdString(tab_name.data()));
-    // auto shortcut = QShortcut (QKeySequence ("Ctrl+w"), _tabWidget);
+    _tab_widget->addTab(new_tab, QString(tab_name.data()));
     _tab_widget->setCurrentWidget(new_tab);
 
     _vtk_widgets.push_back(std::move(vtk_widget));
+    cout << "Added to the list: " << _vtk_widgets.back()->objectName().toStdString() << endl;
+}
+
+void MainWindow::CloseTab()
+{
+    auto idx{_tab_widget->currentIndex()};
+    _tab_widget->removeTab(idx);
+    // Also remove the corresponding element from our P.C. container
+    auto it{_vtk_widgets.begin()};
+    std::advance(it, idx);
+    cout << "Removing from the list: " << (*it)->objectName().toStdString() << endl;
+    _vtk_widgets.erase(it);
 }

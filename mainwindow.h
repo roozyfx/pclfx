@@ -32,10 +32,13 @@ private:
     std::unique_ptr<Ransac> _ransac;
     void SetFileMenuActions();
     void SetButtonsActions();
+    void SetUpTabWidget();
     void OpenFile();
 
     void InitParams();
     bool LoadCloud(std::string_view file_name);
+
+    void CloseTab();
 
     template<typename PC>
     void VisualizeInNewTab(const std::shared_ptr<PC> pc);
@@ -45,5 +48,5 @@ private:
     void NewTab(std::string_view tab_name);
 
     QTabWidget *_tab_widget;
-    std::vector<std::unique_ptr<PCLQVTKWidget>> _vtk_widgets;
+    std::list<std::unique_ptr<PCLQVTKWidget>> _vtk_widgets;
 };
