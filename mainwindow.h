@@ -26,6 +26,8 @@ protected:
     std::shared_ptr<PointCloud> _pc{std::make_shared<PointCloud>()};
     std::shared_ptr<PointCloudColor> _pc_color{std::make_shared<PointCloudColor>()};
 
+    void resizeEvent(QResizeEvent *event) override;
+
 private:
     Ui::MainWindow *ui;
     std::unique_ptr<Filter> _filter;
@@ -46,7 +48,10 @@ private:
     void Visualize(const std::shared_ptr<PC> pc);
     void RefreshView();
     void NewTab(std::string_view tab_name);
+    void UpdateWindowSize();
 
-    QTabWidget *_tab_widget;
+    std::unique_ptr<QTabWidget> _tab_widget;
+    int _tab_width{1940}, _tab_height{1100};
+    int _render_margin{10};
     std::list<std::unique_ptr<PCLQVTKWidget>> _vtk_widgets;
 };

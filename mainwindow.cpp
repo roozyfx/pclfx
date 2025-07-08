@@ -1,9 +1,12 @@
 #include "mainwindow.h"
 #include <QFileDialog>
 #include <QLineEdit>
+#include <QResizeEvent>
 #include <QShortcut>
+#include <algorithm>
 #include <filesystem>
 #include <iostream>
+#include <iterator>
 #include <pcl/io/obj_io.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/io/ply_io.h>
@@ -14,7 +17,6 @@
 #include <QMessageBox>
 #include <vtkGenericOpenGLRenderWindow.h>
 #endif
-#include <iterator>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,17 +26,25 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     this->setWindowTitle("PCL viewer");
+    _tab_widget = std::make_unique<QTabWidget>(ui->central_widget);
 
     InitParams();
     SetFileMenuActions();
     SetButtonsActions();
     SetUpTabWidget();
+    UpdateWindowSize();
 }
 
 MainWindow::~MainWindow()
 {
     if (ui)
         delete ui;
+}
+
+void MainWindow::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+    UpdateWindowSize();
 }
 
 void MainWindow::InitParams()
@@ -100,12 +110,10 @@ void MainWindow::SetButtonsActions()
 
 void MainWindow::SetUpTabWidget()
 {
-    _tab_widget = new QTabWidget(ui->central_widget);
     _tab_widget->setObjectName(QString::fromUtf8("tabWidget"));
-    _tab_widget->setGeometry(QRect(10, 10, 1940, 1100));
     _tab_widget->setMovable(true);
     _tab_widget->setTabsClosable(true);
-    connect(_tab_widget, &QTabWidget::tabCloseRequested, this, &MainWindow::CloseTab);
+    connect(_tab_widget.get(), &QTabWidget::tabCloseRequested, this, &MainWindow::CloseTab);
 }
 
 void MainWindow::OpenFile()
@@ -191,12 +199,35 @@ void MainWindow::NewTab(std::string_view tab_name)
     new_tab->setObjectName(QString(tab_name.data()));
     std::unique_ptr<PCLQVTKWidget> vtk_widget = std::make_unique<PCLQVTKWidget>(new_tab);
     vtk_widget->setObjectName(QString(tab_name.data()));
-    vtk_widget->setGeometry(12, 12, 1920, 1080);
     _tab_widget->addTab(new_tab, QString(tab_name.data()));
     _tab_widget->setCurrentWidget(new_tab);
 
     _vtk_widgets.push_back(std::move(vtk_widget));
+    UpdateWindowSize();
     cout << "Added to the list: " << _vtk_widgets.back()->objectName().toStdString() << endl;
+}
+
+void MainWindow::UpdateWindowSize()
+{
+    QSize win_size{ui->central_widget->size()};
+    float w{static_cast<float>(win_size.width())};
+    float h{static_cast<float>(win_size.height())};
+    //@todo change hard-coded values
+    float scale{0.95f};
+    _tab_width = static_cast<int>(w * scale);
+    _tab_height = static_cast<int>(h * scale);
+    if (_tab_widget) {
+        _tab_widget->setGeometry(QRect(10, 10, _tab_width, _tab_height));
+    }
+    if (!_vtk_widgets.empty()) {
+        std::for_each(_vtk_widgets.begin(), _vtk_widgets.end(), [this](auto &el) {
+            //@todo change hard-coded values
+            el->setGeometry(_render_margin + 5,
+                            _render_margin + 5,
+                            _tab_width - 20,
+                            _tab_height - 20);
+        });
+    }
 }
 
 void MainWindow::CloseTab()
